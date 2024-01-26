@@ -60,3 +60,5 @@ save_chord_audio(chord, name, 'ff', 'Single Piano Notes (Trimmed)', 'Test Combos
 ```
 Will generate a file in the folder `Test Combos` named `Piano.ff.A4.demo.aiff` that contains a combination of A4, E5, and Ab5.
 
+### Other
+There are many other functions in `spectrogram.py`, mostly for creating and displaying spectrograms. Adding comments is a TODO. Hopefully relatively self-explanatory if needed, otherwise send me a message and I am happy to help
