@@ -25,10 +25,10 @@ def get_spectrogram_from_file(file, type='stft', mono=True):
         return chroma, sr
 
 
-def plot_same_notes(note, spec_type):
-    spec_ff, sr = get_spectrogram_from_file(f'Single Piano Notes\Piano.ff.{note}.aiff', spec_type)
-    spec_mf, sr = get_spectrogram_from_file(f'Single Piano Notes\Piano.mf.{note}.aiff', spec_type)
-    spec_pp, sr = get_spectrogram_from_file(f'Single Piano Notes\Piano.pp.{note}.aiff', spec_type)
+def plot_same_notes(note, spec_type, note_location='Single Piano Notes'):
+    spec_ff, sr = get_spectrogram_from_file(f'{note_location}\Piano.ff.{note}.aiff', spec_type)
+    spec_mf, sr = get_spectrogram_from_file(f'{note_location}\Piano.mf.{note}.aiff', spec_type)
+    spec_pp, sr = get_spectrogram_from_file(f'{note_location}\Piano.pp.{note}.aiff', spec_type)
 
     if spec_type != 'chroma':
         spec_ff = librosa.amplitude_to_db(np.abs(spec_ff), ref=np.max)
@@ -102,8 +102,8 @@ def get_chord_spectrogram(specs, spec_type='stft', mono=True):
                         chord_spec[1][i][j] += spec[1][i][-1]
     return chord_spec
 
-def plot_chord_breakdown(chord, chord_name, dynamic, spec_type):
-    spec = [get_spectrogram_from_file(f'Single Piano Notes\Piano.{dynamic}.{note}.aiff', spec_type) for note in chord]
+def plot_chord_breakdown(chord, chord_name, dynamic, spec_type, note_location='Single Piano Notes'):
+    spec = [get_spectrogram_from_file(f'{note_location}\Piano.{dynamic}.{note}.aiff', spec_type) for note in chord]
     sr = spec[0][1]
     spec = [s[0] for s in spec]
     spec.append(get_chord_spectrogram(spec, spec_type))
@@ -136,10 +136,10 @@ def save_chord_audio(chord, chord_name, dynamic, input_dir='Single Piano Notes',
     chord_data = [get_spectrogram_from_file(f'{input_dir}/Piano.{dynamic}.{note}.aiff', mono=False) for note in chord]
     chord = get_chord_spectrogram([chord_data[i][0] for i in range(len(chord_data))], mono=False)
     sr = chord_data[0][1]
-    sf.write(f'{output_dir}/Piano.{dynamic}.{chord_name}.aiff', librosa.istft(chord, hop_length=512).transpose(), sr)
+    sf.write(f'{output_dir}/Piano.{dynamic}.{chord_name}.aiff', librosa.istft(chord, hop_length=HOP_LENGTH).transpose(), sr)
 
 def save_chord_from_spectrogram(spec, output_path, sr=44100):
-    sf.write(output_path, librosa.istft(spec, hop_length=512).transpose(), sr)
+    sf.write(output_path, librosa.istft(spec, hop_length=HOP_LENGTH).transpose(), sr)
 
 def get_chord(tonic, chord_type, octave=4, name=None, degrees=None):
     tonic = _convert_to_flats_(tonic)
@@ -286,6 +286,7 @@ def plot_spectrogram(spec, spec_name, dynamic, spec_type, sr, title=None):
     
     img1 = librosa.display.specshow(spec, sr=sr, hop_length=HOP_LENGTH, y_axis=AXES[spec_type], ax=ax, x_axis='s')
     if title == None:
+        title = f'{spec_name} {dynamic} {spec_type}'
         ax.set_title(f'{spec_name} {dynamic} {spec_type}')
     else:
         ax.set_title(title)
@@ -297,13 +298,13 @@ def plot_spectrogram(spec, spec_name, dynamic, spec_type, sr, title=None):
     plt.savefig(spec_name)
     plt.close()
 
-def plot_single_note(note, dynamic, spec_type):
+def plot_single_note(note, dynamic, spec_type, note_location='Single Piano Notes'):
     note = _convert_to_flats_(note)
-    spec, sr = get_spectrogram_from_file(f'Single Piano Notes\Piano.{dynamic}.{note}.aiff', spec_type)
+    spec, sr = get_spectrogram_from_file(f'{note_location}\Piano.{dynamic}.{note}.aiff', spec_type)
     plot_spectrogram(spec, note, dynamic, spec_type, sr)
 
-def plot_chord(chord, chord_name, dynamic, spec_type):
-    spec = [get_spectrogram_from_file(f'Single Piano Notes\Piano.{dynamic}.{note}.aiff', spec_type) for note in chord]
+def plot_chord(chord, chord_name, dynamic, spec_type, note_location='Single Piano Notes'):
+    spec = [get_spectrogram_from_file(f'{note_location}\Piano.{dynamic}.{note}.aiff', spec_type) for note in chord]
     sr = spec[0][1]
     spec = [s[0] for s in spec]
     chord_spec = get_chord_spectrogram(spec, spec_type)
